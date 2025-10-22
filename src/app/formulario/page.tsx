@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useDropzone, FileWithPath } from "react-dropzone";
 import { categories } from "@/data/categories";
@@ -9,6 +9,7 @@ import Footer from "@/components/Footer";
 import { supabase } from "@/lib/supabaseClient";
 import { motion, AnimatePresence } from "framer-motion";
 
+// Tipos
 type Section = {
   id: number;
   name: string;
@@ -35,10 +36,20 @@ type EventForm = {
   type: "visit" | "date";
   sectionId?: number;
   emoji?: string;
-  external_link: "",
+  external_link: "";
 };
 
+// 🔹 Componente principal com Suspense
 export default function FormularioPage() {
+  return (
+    <Suspense fallback={<div className="p-10 text-center text-zinc-500">Carregando formulário...</div>}>
+      <FormularioInner />
+    </Suspense>
+  );
+}
+
+// 🔹 Conteúdo original movido aqui
+function FormularioInner() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const id = searchParams?.get("id");
@@ -138,18 +149,12 @@ export default function FormularioPage() {
     fetchSections();
   }, []);
 
-    // 🔹 Atualiza o emoji automaticamente ao selecionar uma seção
   useEffect(() => {
     if (form.sectionId && sections.length > 0) {
       const selected = sections.find((s) => s.id === form.sectionId);
-      if (selected?.emoji) {
-        setForm((prev) => ({ ...prev, emoji: selected.emoji }));
-      } else {
-        setForm((prev) => ({ ...prev, emoji: "" }));
-      }
+      setForm((prev) => ({ ...prev, emoji: selected?.emoji || "" }));
     }
   }, [form.sectionId, sections]);
-
 
   useEffect(() => {
     async function fetchEvent() {
