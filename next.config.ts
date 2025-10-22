@@ -16,3 +16,5 @@ const nextConfig: NextConfig = {
 };
 
 export default nextConfig;
+
+// ✅ Configuração do Next.js com TypeScript, ESLint e rotas tipadas desativadas
