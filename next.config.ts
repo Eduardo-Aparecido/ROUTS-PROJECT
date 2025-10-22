@@ -2,18 +2,24 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   typescript: {
-    // ✅ Impede que o Vercel quebre o build por erros de tipo
+    // Permite builds mesmo com pequenos erros de tipo
     ignoreBuildErrors: true,
   },
   eslint: {
-    // ✅ Impede falha por warnings de lint
+    // Ignora erros de lint no build
     ignoreDuringBuilds: true,
   },
+  // 🚀 Força uso do compilador clássico, evitando o erro de API type
+  turbo: {
+    rules: {
+      "*.ts": {
+        loader: "ts-loader",
+      },
+    },
+  },
   experimental: {
-    // ✅ Desativa o validador de tipos das rotas (causa do seu erro)
-    typedRoutes: false,
+    typedRoutes: false, // mantém compatibilidade, mas sem afetar API
   },
 };
 
 export default nextConfig;
-
