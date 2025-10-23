@@ -3,10 +3,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Header from "../../components/Header";
-import CategoryList from "../../components/CategoryList";
-import LocalVisit from "../../components/LocalVisit";
-import Footer from "../../components/Footer";
+import Header from "../components/Header";
+import CategoryList from "../components/CategoryList";
+import LocalVisit from "../components/LocalVisit";
+import Footer from "../components/Footer";
 import { supabase } from "@/lib/supabaseClient";
 import { Event } from "@/data/types";
 import SidebarMenu from "@/components/SidebarMenu";
