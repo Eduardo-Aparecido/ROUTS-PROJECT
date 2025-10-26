@@ -1,4 +1,5 @@
-// src/pages/api/anuncie.ts
+// react-estudo/src/app/api/anuncie/route.ts
+
 import { supabase } from "@/lib/supabaseClient";
 import type { NextApiRequest, NextApiResponse } from "next";
 
