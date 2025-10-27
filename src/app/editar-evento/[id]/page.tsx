@@ -45,7 +45,7 @@ export default function EditarEventoPage() {
       if (!id) return;
 
       try {
-        const res = await fetch(`/api/get-event?id=${Number(id)}`);
+        const res = await fetch(`/api/event/get?id=${Number(id)}`);
         const data = await res.json();
         if (!res.ok) throw new Error(data.error);
 
