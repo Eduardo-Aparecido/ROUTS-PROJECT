@@ -1,94 +1,88 @@
 // src/app/api/event/update/route.ts
-
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
-import fs from "fs/promises";
-import path from "path";
-import multiparty from "multiparty";
 
-// ⚙️ Inicializa o Supabase Client
+export const runtime = "edge"; // ou "nodejs" se precisar de fs (aqui não precisa)
+
+// 🔹 Supabase Client (apenas leitura/escrita normal)
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
 
-// ❗ Desabilita o bodyParser (não é mais feito via `config` no App Router)
-export const runtime = "nodejs"; // necessário para usar fs e multiparty
-
-// ✅ Método PUT
 export async function PUT(req: Request) {
   try {
-    // Multiparty ainda funciona, mas precisa de um parse manual da stream
-    const form = new multiparty.Form();
+    const formData = await req.formData();
 
-    const { fields, files } = await new Promise<{ fields: any; files: any }>(
-      (resolve, reject) => {
-        form.parse(req as any, (err: any, fields: any, files: any) => {
-          if (err) reject(err);
-          else resolve({ fields, files });
-        });
-      }
-    );
-
-    const id = Number(fields.id?.[0]);
+    const id = Number(formData.get("id"));
     if (!id) {
       return NextResponse.json({ error: "ID não fornecido" }, { status: 400 });
     }
 
-    // 🔹 Campos do evento
+    // 🔹 Monta objeto de atualização
     const updates: any = {
-      title: fields.title?.[0] || "",
-      local: fields.local?.[0] || "",
-      date: fields.date?.[0] || null,
-      category_id: fields.categoryId?.[0] ? Number(fields.categoryId[0]) : null,
-      section_id: fields.sectionId?.[0] ? Number(fields.sectionId[0]) : null,
-      description: fields.description?.[0] || "",
-      address: fields.address?.[0] || "",
-      phone: fields.phone?.[0] || "",
-      map_embed: fields.map_embed?.[0] || "",
-      type: fields.type?.[0] || "visit",
-      external_link: fields.external_link?.[0] || "",
+      title: formData.get("title") || "",
+      local: formData.get("local") || "",
+      date: formData.get("date") || null,
+      category_id: formData.get("categoryId")
+        ? Number(formData.get("categoryId"))
+        : null,
+      section_id: formData.get("sectionId")
+        ? Number(formData.get("sectionId"))
+        : null,
+      description: formData.get("description") || "",
+      address: formData.get("address") || "",
+      phone: formData.get("phone") || "",
+      map_embed: formData.get("map_embed") || "",
+      type: formData.get("type") || "visit",
+      external_link: formData.get("external_link") || "",
     };
 
     // 🔹 Upload da imagem principal (se existir)
-    const imageFile = files.image?.[0];
-    if (imageFile) {
-      const buffer = await fs.readFile(imageFile.path);
-      const fileName = `main/${Date.now()}-${path.basename(imageFile.originalFilename)}`;
-      const { error } = await supabase.storage
-        .from("event-images")
-        .upload(fileName, buffer, {
-          contentType: imageFile.headers["content-type"],
-        });
+    const imageFile = formData.get("image") as File | null;
+    if (imageFile && imageFile.size > 0) {
+      const arrayBuffer = await imageFile.arrayBuffer();
+      const buffer = new Uint8Array(arrayBuffer);
 
-      if (error) throw error;
+      const fileName = `main/${Date.now()}-${imageFile.name}`;
+      const { error: uploadError } = await supabase.storage
+        .from("event-images")
+        .upload(fileName, buffer, { contentType: imageFile.type });
+
+      if (uploadError) throw uploadError;
 
       const { data: publicUrl } = supabase.storage
         .from("event-images")
         .getPublicUrl(fileName);
+
       updates.image = publicUrl.publicUrl;
     }
 
     // 🔹 Galeria
-    const galleryFiles = files.gallery || [];
-    let galleryUrls = fields.galleryUrls ? JSON.parse(fields.galleryUrls[0]) : [];
+    const galleryUrlsRaw = formData.get("galleryUrls") as string | null;
+    let galleryUrls = galleryUrlsRaw ? JSON.parse(galleryUrlsRaw) : [];
 
+    const galleryFiles = formData.getAll("gallery") as File[];
     for (const file of galleryFiles) {
-      const buffer = await fs.readFile(file.path);
-      const fileName = `gallery/${Date.now()}-${path.basename(file.originalFilename)}`;
+      const arrayBuffer = await file.arrayBuffer();
+      const buffer = new Uint8Array(arrayBuffer);
+      const fileName = `gallery/${Date.now()}-${file.name}`;
+
       const { error } = await supabase.storage
         .from("events")
-        .upload(fileName, buffer, { contentType: file.headers["content-type"] });
+        .upload(fileName, buffer, { contentType: file.type });
+
       if (error) throw error;
 
       const { data: publicUrl } = supabase.storage
         .from("events")
         .getPublicUrl(fileName);
+
       galleryUrls.push(publicUrl.publicUrl);
     }
     updates.gallery = galleryUrls;
 
-    // 🔹 Atualiza evento no Supabase
+    // 🔹 Atualiza evento
     const { error: updateError } = await supabase
       .from("events")
       .update(updates)
@@ -96,18 +90,20 @@ export async function PUT(req: Request) {
 
     if (updateError) throw updateError;
 
-    // 🔹 Atualiza horários de funcionamento
-    const openingHours = fields.openingHours ? JSON.parse(fields.openingHours[0]) : [];
-    if (openingHours.length > 0) {
-      // Deleta horários antigos
-      const { error: deleteError } = await supabase
+    // 🔹 Horários
+    const openingHoursRaw = formData.get("openingHours") as string | null;
+    if (openingHoursRaw) {
+      const openingHours = JSON.parse(openingHoursRaw);
+
+      // Deleta antigos
+      const { error: delErr } = await supabase
         .from("opening_hours")
         .delete()
         .eq("event_id", id);
-      if (deleteError) throw deleteError;
+      if (delErr) throw delErr;
 
       // Insere novos
-      const formattedHours = openingHours.map((h: any) => ({
+      const formatted = openingHours.map((h: any) => ({
         event_id: id,
         weekday: h.weekday,
         open_time: h.open_time || null,
@@ -115,10 +111,10 @@ export async function PUT(req: Request) {
         is_closed: !!h.is_closed,
       }));
 
-      const { error: hoursError } = await supabase
+      const { error: insErr } = await supabase
         .from("opening_hours")
-        .insert(formattedHours);
-      if (hoursError) throw hoursError;
+        .insert(formatted);
+      if (insErr) throw insErr;
     }
 
     return NextResponse.json({ success: true });
