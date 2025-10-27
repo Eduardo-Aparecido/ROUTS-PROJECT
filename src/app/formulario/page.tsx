@@ -160,7 +160,7 @@ function FormularioInner() {
     async function fetchEvent() {
       if (!id) return;
       try {
-        const res = await fetch(`/api/get-event?id=${id}`);
+        const res = await fetch(`/api/event/get?id=${id}`);
         const data = await res.json();
         if (!res.ok) throw new Error(data.error || "Erro ao buscar evento");
 
@@ -272,7 +272,7 @@ function FormularioInner() {
       formData.append("external_link", form.external_link);
       formData.append("openingHours", JSON.stringify(openingHours));
 
-      const res = await fetch(form.id ? "/api/update-event" : "/api/create-event", {
+      const res = await fetch(form.id ? "/api/event/update" : "/api/event/create", {
         method: form.id ? "PUT" : "POST",
         body: formData,
       });
@@ -295,7 +295,7 @@ function FormularioInner() {
     if (!form.id) return;
     if (!confirm("Tem certeza que deseja excluir este evento?")) return;
     try {
-      const res = await fetch("/api/delete-event", {
+      const res = await fetch("/api/event/delete", {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ id: form.id }),
