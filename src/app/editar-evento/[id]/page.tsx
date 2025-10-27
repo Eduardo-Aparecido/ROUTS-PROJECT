@@ -17,7 +17,7 @@ type EventForm = {
   map_embed: string;
   type: "visit" | "date";
   galleryUrls: string[];
-  sectionId?: number; // <-- Adicione aqui!
+  sectionId?: number;
 };
 
 export default function EditarEventoPage() {
