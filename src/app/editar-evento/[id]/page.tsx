@@ -100,7 +100,7 @@ export default function EditarEventoPage() {
     if (!form.id) return alert("ID do evento não encontrado.");
 
     try {
-      const res = await fetch("/api/update-event", {
+      const res = await fetch("/api/event/update", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(form), // envia como JSON
