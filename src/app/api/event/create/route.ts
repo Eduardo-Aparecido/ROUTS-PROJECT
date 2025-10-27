@@ -1,16 +1,17 @@
-// src/pages/api/create-event.ts
-import type { NextApiRequest, NextApiResponse } from "next";
+// src/app/api/event/create/route.ts
+
+import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import multiparty from "multiparty";
 import fs from "fs/promises";
 import path from "path";
 
+export const config = { api: { bodyParser: false } };
+
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
-
-export const config = { api: { bodyParser: false } };
 
 // Tipos próprios compatíveis com multiparty
 type FormFields = Record<string, string[]>;
@@ -24,7 +25,7 @@ type FormFile = {
 type FormFiles = Record<string, FormFile[]>;
 
 // Função para parsear multiparty com Promise
-function parseForm(req: NextApiRequest): Promise<{ fields: FormFields; files: FormFiles }> {
+function parseForm(req: any): Promise<{ fields: FormFields; files: FormFiles }> {
   return new Promise((resolve, reject) => {
     const form = new multiparty.Form();
     form.parse(req, (err: Error | null, fields: FormFields, files: FormFiles) => {
@@ -34,13 +35,22 @@ function parseForm(req: NextApiRequest): Promise<{ fields: FormFields; files: Fo
   });
 }
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  if (req.method !== "POST") {
-    return res.status(405).json({ error: "Método não permitido" });
-  }
-
+export async function POST(req: Request) {
   try {
-    const { fields, files } = await parseForm(req);
+    // Como o App Router não usa NextApiRequest, precisamos converter o corpo para stream
+    const buffers: Uint8Array[] = [];
+    const reader = req.body?.getReader();
+    if (reader) {
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        if (value) buffers.push(value);
+      }
+    }
+    const stream = Buffer.concat(buffers);
+    (stream as any).headers = Object.fromEntries(req.headers.entries());
+
+    const { fields, files } = await parseForm(stream);
 
     const title = fields.title?.[0] || "";
     const local = fields.local?.[0] || "";
@@ -66,9 +76,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         .upload(fileName, buffer, { contentType: imageFile.headers["content-type"] });
       if (error) throw error;
 
-      const { data: publicUrl } = supabase.storage
-        .from("event-images")
-        .getPublicUrl(fileName);
+      const { data: publicUrl } = supabase.storage.from("event-images").getPublicUrl(fileName);
       imageUrl = publicUrl.publicUrl;
     }
 
@@ -83,9 +91,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         .upload(fileName, buffer, { contentType: file.headers["content-type"] });
       if (error) throw error;
 
-      const { data: publicUrl } = supabase.storage
-        .from("events")
-        .getPublicUrl(fileName);
+      const { data: publicUrl } = supabase.storage.from("events").getPublicUrl(fileName);
       galleryUrls.push(publicUrl.publicUrl);
     }
 
@@ -124,15 +130,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         is_closed: !!h.is_closed,
       }));
 
-      const { error: hoursError } = await supabase
-        .from("opening_hours")
-        .insert(formattedHours);
+      const { error: hoursError } = await supabase.from("opening_hours").insert(formattedHours);
       if (hoursError) throw hoursError;
     }
 
-    res.status(200).json({ success: true, event: newEvent });
+    return NextResponse.json({ success: true, event: newEvent }, { status: 200 });
   } catch (error: any) {
     console.error("Erro ao criar evento:", error);
-    res.status(500).json({ error: error.message });
+    return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }

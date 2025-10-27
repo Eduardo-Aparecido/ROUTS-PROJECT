@@ -1,10 +1,15 @@
-// src/pages/api/list-events.ts
-import type { NextApiRequest, NextApiResponse } from "next";
-import { supabase } from "@/lib/supabaseClient";
+// src/app/api/event/list/route.ts
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  if (req.method !== "GET") return res.status(405).json({ error: "Método não permitido" });
+import { NextResponse } from "next/server";
+import { createClient } from "@supabase/supabase-js";
 
+// 🔹 Criar cliente Supabase (no servidor)
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+);
+
+export async function GET() {
   try {
     const { data, error } = await supabase
       .from("events")
@@ -13,9 +18,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     if (error) throw error;
 
-    return res.status(200).json(data);
+    return NextResponse.json({ events: data });
   } catch (err: any) {
     console.error("Erro ao listar eventos:", err.message);
-    return res.status(500).json({ error: "Erro ao listar eventos" });
+    return NextResponse.json(
+      { error: "Erro ao listar eventos" },
+      { status: 500 }
+    );
   }
 }
+

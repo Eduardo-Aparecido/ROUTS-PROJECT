@@ -1,71 +1,101 @@
-// src/app/api/upload-event/route.ts
-import { NextRequest } from "next/server";
-import { supabase } from "@/lib/supabaseClient";
-import formidable from "formidable";
-import fs from "fs";
+// src/app/api/event/upload/route.ts
+
+import { NextResponse } from "next/server";
+import { createClient } from "@supabase/supabase-js";
+import fs from "fs/promises";
 import path from "path";
+import formidable from "formidable";
 
-// 🔹 Desativa o parsing automático do Next
-export const config = {
-  api: { bodyParser: false },
-};
+// ⚙️ Inicializa Supabase
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+);
 
-export async function POST(req: NextRequest) {
+// 🚫 O App Router não usa mais `config.api.bodyParser`
+export const runtime = "nodejs";
+
+export async function POST(req: Request) {
   try {
-    const buffer = await req.arrayBuffer();
-    const form = new formidable.IncomingForm({ multiples: true });
-    const tmpFile = Buffer.from(buffer);
+    // ⚙️ Criar uma instância do formidable
+    const form = formidable({ multiples: true });
 
-    // 🔹 Cria uma promise para parsear o formulário
-    const parseForm = () =>
-      new Promise<{ fields: formidable.Fields; files: formidable.Files }>((resolve, reject) => {
-        form.parse({ body: tmpFile } as any, (err, fields, files) => {
+    // ⚡️ Parse manual da stream
+    const { fields, files } = await new Promise<{ fields: any; files: any }>(
+      (resolve, reject) => {
+        form.parse(req as any, (err: any, fields: any, files: any) => {
           if (err) reject(err);
           else resolve({ fields, files });
         });
-      });
+      }
+    );
 
-    const { fields, files } = await parseForm();
-
-    // Salvar arquivos
+    // 🔹 Imagem principal
     const mainFile = Array.isArray(files.image) ? files.image[0] : files.image;
+    let mainUrl = "";
+
+    if (mainFile) {
+      const buffer = await fs.readFile(mainFile.filepath);
+      const fileName = `main/${Date.now()}-${path.basename(mainFile.originalFilename)}`;
+      const { error } = await supabase.storage
+        .from("event-images")
+        .upload(fileName, buffer, {
+          contentType: mainFile.mimetype || "image/jpeg",
+        });
+      if (error) throw error;
+
+      const { data } = supabase.storage
+        .from("event-images")
+        .getPublicUrl(fileName);
+      mainUrl = data.publicUrl;
+    }
+
+    // 🔹 Galeria
     const galleryFiles = Array.isArray(files.gallery)
       ? files.gallery
       : files.gallery
       ? [files.gallery]
       : [];
 
-    let mainUrl = "";
-    if (mainFile) {
-      const data = fs.readFileSync(mainFile.filepath);
-      const filename = `${Date.now()}_${mainFile.originalFilename || "image"}`;
-      const filePath = path.join(process.cwd(), "public/uploads", filename);
-      fs.writeFileSync(filePath, data);
-      mainUrl = `/uploads/${filename}`;
-    }
-
     const galleryUrls: string[] = [];
+
     for (const file of galleryFiles) {
-      const data = fs.readFileSync(file.filepath);
-      const filename = `${Date.now()}_${file.originalFilename || "gallery"}`;
-      const filePath = path.join(process.cwd(), "public/uploads", filename);
-      fs.writeFileSync(filePath, data);
-      galleryUrls.push(`/uploads/${filename}`);
+      const buffer = await fs.readFile(file.filepath);
+      const fileName = `gallery/${Date.now()}-${path.basename(file.originalFilename)}`;
+      const { error } = await supabase.storage
+        .from("events")
+        .upload(fileName, buffer, { contentType: file.mimetype || "image/jpeg" });
+      if (error) throw error;
+
+      const { data } = supabase.storage.from("events").getPublicUrl(fileName);
+      galleryUrls.push(data.publicUrl);
     }
 
-    const { error } = await supabase.from("events").insert([
+    // 🔹 Insere o evento no banco
+    const { error: insertError } = await supabase.from("events").insert([
       {
-        ...fields,
+        title: fields.title?.[0] || "",
+        local: fields.local?.[0] || "",
+        date: fields.date?.[0] || null,
+        category_id: fields.categoryId?.[0] ? Number(fields.categoryId[0]) : null,
+        description: fields.description?.[0] || "",
+        address: fields.address?.[0] || "",
+        phone: fields.phone?.[0] || "",
+        map_embed: fields.map_embed?.[0] || "",
+        type: fields.type?.[0] || "visit",
         image: mainUrl,
-        gallery: JSON.stringify(galleryUrls),
+        gallery: galleryUrls,
       },
     ]);
 
-    if (error) throw error;
+    if (insertError) throw insertError;
 
-    return new Response(JSON.stringify({ message: "Evento cadastrado com sucesso!" }), { status: 200 });
+    return NextResponse.json({ message: "Evento criado com sucesso!" });
   } catch (err: any) {
-    console.error(err);
-    return new Response(JSON.stringify({ error: "Erro ao salvar evento" }), { status: 500 });
+    console.error("Erro ao criar evento:", err);
+    return NextResponse.json(
+      { error: err.message || "Erro ao salvar evento" },
+      { status: 500 }
+    );
   }
 }
