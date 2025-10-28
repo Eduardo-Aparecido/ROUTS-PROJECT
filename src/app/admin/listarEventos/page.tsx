@@ -110,7 +110,7 @@ export default function ListarEventosPage() {
                   {/* Botões */}
                   <div className="mt-3 flex gap-2 pt-2">
                     <Link
-                      href={`/formulario?id=${evento.id}`}
+                      href={`/admin?id=${evento.id}`}
                       className="flex-1 bg-yellow-500 hover:bg-yellow-600 text-white text-xs font-semibold px-3 py-1.5 rounded text-center transition-all duration-200"
                     >
                       Editar

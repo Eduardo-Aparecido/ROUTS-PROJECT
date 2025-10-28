@@ -5,7 +5,6 @@ import { useSearchParams, useRouter } from "next/navigation";
 import { useDropzone, FileWithPath } from "react-dropzone";
 import { categories } from "@/data/categories";
 import Header from "@/components/Header";
-import Footer from "@/components/Footer";
 import { supabase } from "@/lib/supabaseClient";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -282,7 +281,7 @@ function FormularioInner() {
 
       setSuccess(true);
       alert(form.id ? "Evento atualizado!" : "Evento cadastrado!");
-      router.push("/listarEventos");
+      router.push("/admin/listarEventos");
     } catch (err: any) {
       console.error("Erro ao salvar evento:", err);
       alert(err.message || "Erro ao salvar evento.");
@@ -304,7 +303,7 @@ function FormularioInner() {
       if (!res.ok) throw new Error(data.error);
       await supabase.from("opening_hours").delete().eq("event_id", form.id);
       alert("Evento excluído com sucesso!");
-      router.push("/listarEventos");
+      router.push("/admin/listarEventos");
     } catch (err: any) {
       console.error("Erro ao excluir:", err);
       alert(err.message || "Erro ao excluir evento.");
@@ -338,7 +337,7 @@ function FormularioInner() {
               <p className="text-sm text-zinc-500 mt-1">Preencha as informações abaixo. Campos com * são obrigatórios.</p>
             </div>
             <div className="flex gap-2">
-              <button type="button" onClick={() => router.push("/listarEventos")} className="inline-flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg font-medium hover:scale-[1.02] hover:shadow-lg transition-all duration-150">
+              <button type="button" onClick={() => router.push("/admin/listarEventos")} className="inline-flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg font-medium hover:scale-[1.02] hover:shadow-lg transition-all duration-150">
                 📋 Listar Eventos
               </button>
             </div>

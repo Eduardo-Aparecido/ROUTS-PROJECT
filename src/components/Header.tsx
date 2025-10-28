@@ -35,7 +35,7 @@ export default function Header({
     <header className="fixed top-0 left-0 w-full z-50 backdrop-blur-xl bg-black/60 border-b border-white/10">
       <div className="flex items-center justify-between max-w-6xl mx-auto px-6 py-4">
         {/* LOGO */}
-        <Link href="/index" className="text-2xl font-bold text-white tracking-tight">
+        <Link href="/" className="text-2xl font-bold text-white tracking-tight">
           <span className="text-green-400">ROUTS</span>
         </Link>
 
@@ -55,7 +55,7 @@ export default function Header({
             />
           </div>
           <Link
-            href="/formulario"
+            href="/admin"
             className="ml-4 px-4 py-2 rounded-lg font-semibold text-white bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-400 hover:to-emerald-500 shadow-md transition-all"
           >
             Criar evento
