@@ -6,5 +6,6 @@ export const categories = [
   { id: 4, name: "Parques", icon: "🏃🏼‍♂️" },
   { id: 5, name: "Shoppings", icon: "🏢" },
   { id: 6, name: "Teatro", icon: "🎭" },
-  { id: 7, name: "Culinária Japonesa", icon: "🥗" },
+  { id: 7, name: "Esporte", icon: "🏐" },
+  { id: 8, name: "Culinária Japonesa", icon: "🥗" },
 ];
