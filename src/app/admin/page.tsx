@@ -414,8 +414,19 @@ function FormularioInner() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-zinc-700 mb-1">Local *</label>
-                  <input name="local" value={form.local} onChange={handleChange} required className="w-full px-3 py-2 border border-zinc-300 rounded-lg focus:ring-2 focus:ring-blue-400 text-zinc-800 shadow-sm" />
+                  <label className="block text-sm font-medium text-zinc-700 mb-1">
+                    Local *
+                  </label>
+                  <div className="relative">
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500">📍</span>
+                    <input
+                      name="local"
+                      value={form.local}
+                      onChange={handleChange}
+                      required
+                      className="w-full pl-8 pr-3 py-2 border border-zinc-300 rounded-lg focus:ring-2 focus:ring-blue-400 text-zinc-800 shadow-sm"
+                    />
+                  </div>
                 </div>
 
                 {/* 🔹 Campo de data agora aparece somente se for tipo "Evento" */}

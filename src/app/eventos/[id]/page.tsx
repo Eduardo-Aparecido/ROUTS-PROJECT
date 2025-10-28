@@ -127,8 +127,6 @@ export default function EventDetail({ params }: { params: Promise<{ id: string }
               </p>
             </div>
 
-
-
             {/* Horário de funcionamento */}
             {event.opening_hours && event.opening_hours.length > 0 && (
               <div className="bg-zinc-900 rounded-lg p-5 w-full max-w-md py-5 mt-6">
