@@ -86,8 +86,7 @@ export default function EventDetail({ params }: { params: Promise<{ id: string }
       <main className="min-h-screen text-white pt-20 bg-zinc-800">
         <Header search="" setSearch={() => {}} />
 
-        {/* 🔹 Mantida exatamente como você pediu */}
-        <div className="w-[95%] sm:w-[85%] md:w-[75%] lg:w-[55%] xl:w-[60%] mx-auto bg-black rounded-t-2xl">
+        <div className="w-[100%] sm:w-[95%] md:w-[75%] lg:w-[55%] xl:w-[60%] mx-auto bg-black rounded-t-2xl">
             
             {/* Imagem principal */}
             <div className="relative w-full h-[200px] sm:h-[250px] md:h-[300px] lg:h-[400px] overflow-hidden mb-2 md:mb-1">
@@ -101,31 +100,34 @@ export default function EventDetail({ params }: { params: Promise<{ id: string }
 
             {/* Título e informações */}
             <div className="rounded-lg p-2 py-1 overflow-hidden w-full">
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                <h1 className="text-2xl font-semibold mt-0 sm:mt-4">{event.title}</h1>
+              <div className="flex items-center justify-between gap-2 sm:gap-3 flex-wrap">
+                <h1 className="text-lg sm:text-2xl font-semibold">{event.title}</h1>
 
                 <span
-                  className={`relative inline-flex items-center justify-center mt-2 sm:mt-0 text-xs font-semibold px-3 py-2 rounded-full ${
-                    isEventOpen
-                      ? "bg-green-600 text-white"
-                      : "bg-red-600 text-white"
-                  }`}
+                  className={`relative inline-flex items-center justify-center
+                  text-[10px] sm:text-xs font-medium 
+                  px-2 py-[2px] sm:px-3 sm:py-[4px] rounded-full transition-all duration-200
+                  shadow-sm border border-white/10
+                  ${isEventOpen ? "bg-green-600 text-white" : "bg-red-600 text-white"}`}
                 >
                   {isEventOpen ? "Aberto agora" : "Fechado agora"}
+
                   {isEventOpen && (
-                    <span className="absolute inline-flex h-3 w-3 top-0 right-0">
-                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                      <span className="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
+                    <span className="absolute inline-flex h-2 w-2 sm:h-2.5 sm:w-2.5 top-0 right-0">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-300 opacity-75"></span>
+                      <span className="relative inline-flex rounded-full h-2 w-2 sm:h-2.5 sm:w-2.5 bg-green-400"></span>
                     </span>
                   )}
                 </span>
               </div>
 
-              <p className="text-sm text-green-500 mt-2">
+              <p className="text-sm text-green-500 mt-1 sm:mt-2">
                 {event.local}
                 {formattedDate && ` – ${formattedDate}`}
               </p>
             </div>
+
+
 
             {/* Horário de funcionamento */}
             {event.opening_hours && event.opening_hours.length > 0 && (
@@ -171,11 +173,14 @@ export default function EventDetail({ params }: { params: Promise<{ id: string }
               </div>
             )}
 
+            <hr className="border-zinc-700 my-4" />
+
+
             {/* Descrição */}
             <div className="space-y-4">
               <div className="rounded-lg p-4">
                 <div className="prose max-w-none">
-                  <p className="font-extrabold mt-0 whitespace-pre-line">
+                  <p className="mt-0 whitespace-pre-line">
                     {event.description}
                   </p>
                 </div>
@@ -236,7 +241,7 @@ export default function EventDetail({ params }: { params: Promise<{ id: string }
                     href={event.external_link}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center justify-center gap-2 w-full sm:w-1/2 px-4 py-2 border border-cyan-500 rounded-full text-white hover:bg-cyan-500 hover:text-black transition-all duration-300"
+                    className="flex items-center justify-center gap-2 w-full sm:w-1/2 px-4 py-2 border border-green-500 rounded-full text-white hover:bg-cyan-500 hover:text-black transition-all duration-300"
                   >
                     <span className="text-lg">🔗</span>
                     <span className="text-sm font-medium">Link do local</span>
@@ -246,7 +251,7 @@ export default function EventDetail({ params }: { params: Promise<{ id: string }
                 {event.phone && (
                   <a
                     href={`tel:${event.phone}`}
-                    className="flex items-center justify-center gap-2 w-full sm:w-1/2 px-4 py-2 border border-cyan-500 rounded-full text-white hover:bg-cyan-500 hover:text-black transition-all duration-300"
+                    className="flex items-center justify-center gap-2 w-full sm:w-1/2 px-4 py-2 border border-green-500 rounded-full text-white hover:bg-cyan-500 hover:text-black transition-all duration-300"
                   >
                     <span className="text-lg">📞</span>
                     <span className="text-sm font-medium">{event.phone}</span>
@@ -255,7 +260,7 @@ export default function EventDetail({ params }: { params: Promise<{ id: string }
               </div>
 
               {event.map_embed && (
-                <div className="mt-6 border border-cyan-500 rounded-2xl p-3 overflow-hidden w-full bg-black/40">
+                <div className="mt-6 border border-green-500 rounded-2xl p-3 overflow-hidden w-full bg-black/40">
                   <div
                     className="rounded-xl overflow-hidden w-full"
                     dangerouslySetInnerHTML={{ __html: event.map_embed }}
@@ -263,7 +268,7 @@ export default function EventDetail({ params }: { params: Promise<{ id: string }
                 </div>
               )}
 
-              <div className="bg-zinc-900 rounded-lg p-4 overflow-hidden w-full">
+              <div className="bg-zinc-900 rounded-lg p-4 mb-2 overflow-hidden w-full">
                 <p className="text-xs">
                   ⚠️ Os horários de atendimento, opções e preços podem ser alterados pelos locais sem aviso!
                 </p>
