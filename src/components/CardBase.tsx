@@ -38,7 +38,7 @@ export default function EventCard({ event }: EventCardProps) {
 
         {/* Local com altura fixa para 1 linha */}
         <p className="text-green-400 text-[11px] font-semibold uppercase min-h-[1rem] truncate">
-          {event.local}
+        📍 {event.local}
         </p>
       </div>
     </motion.div>
