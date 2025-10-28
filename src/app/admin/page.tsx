@@ -47,7 +47,7 @@ export default function FormularioPage() {
   );
 }
 
-// 🔹 Conteúdo original movido aqui
+// 🔹 Conteúdo principal
 function FormularioInner() {
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -84,6 +84,24 @@ function FormularioInner() {
     }))
   );
 
+  // 🔐 Protege a rota do admin
+  useEffect(() => {
+    async function checkAuth() {
+      const { data } = await supabase.auth.getUser();
+      if (!data.user) {
+        router.replace("/login");
+      }
+    }
+    checkAuth();
+  }, [router]);
+
+  // 🔹 Função de logout
+  async function handleLogout() {
+    await supabase.auth.signOut();
+    router.replace("/formulario");
+  }
+
+  // 🔹 Limpeza e normalização
   const cleanUrl = (u: string): string => {
     if (!u) return "";
     let s = String(u).trim();
@@ -131,6 +149,7 @@ function FormularioInner() {
     return [];
   };
 
+  // 🔹 Busca seções do Supabase
   useEffect(() => {
     async function fetchSections() {
       try {
@@ -155,6 +174,7 @@ function FormularioInner() {
     }
   }, [form.sectionId, sections]);
 
+  // 🔹 Busca evento existente (edição)
   useEffect(() => {
     async function fetchEvent() {
       if (!id) return;
@@ -214,6 +234,7 @@ function FormularioInner() {
     fetchEvent();
   }, [id]);
 
+  // 🔹 Manipulação de inputs
   function handleChange(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) {
     const { name, value } = e.target;
     setForm((prev) => ({
@@ -222,6 +243,7 @@ function FormularioInner() {
     }));
   }
 
+  // 🔹 Uploads
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     accept: { "image/*": [] },
     maxFiles: 1,
@@ -240,12 +262,12 @@ function FormularioInner() {
   const removeGalleryUrl = (index: number) => setForm((prev) => ({ ...prev, galleryUrls: prev.galleryUrls?.filter((_, i) => i !== index) }));
   const removeMainImage = () => setForm((prev) => ({ ...prev, image: null, imageUrl: undefined }));
 
+  // 🔹 Submit
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
 
     try {
-      // 🔹 Validação da data se for tipo "Evento"
       if (form.type === "date" && !form.date) {
         alert("Por favor, informe a data do evento.");
         setLoading(false);
@@ -330,15 +352,36 @@ function FormularioInner() {
     <>
       <Header search="" setSearch={() => {}} />
       <main className="min-h-screen bg-gradient-to-br from-zinc-100 via-zinc-200 to-zinc-100 pt-24 px-4 sm:px-8 flex flex-col items-center">
-        <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.45, ease: "easeOut" }} className="w-full max-w-4xl bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg border border-zinc-200 p-6 space-y-8">
+        <motion.div
+          initial={{ opacity: 0, y: 24 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.45, ease: "easeOut" }}
+          className="w-full max-w-4xl bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg border border-zinc-200 p-6 space-y-8"
+        >
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4 border-b border-zinc-200 pb-4">
             <div>
-              <h1 className="text-2xl sm:text-3xl font-extrabold text-zinc-900">{form.id ? "✏️ Editar Evento" : "✨ Cadastrar Novo Evento"}</h1>
-              <p className="text-sm text-zinc-500 mt-1">Preencha as informações abaixo. Campos com * são obrigatórios.</p>
+              <h1 className="text-2xl sm:text-3xl font-extrabold text-zinc-900">
+                {form.id ? "✏️ Editar Evento" : "✨ Cadastrar Novo Evento"}
+              </h1>
+              <p className="text-sm text-zinc-500 mt-1">
+                Preencha as informações abaixo. Campos com * são obrigatórios.
+              </p>
             </div>
             <div className="flex gap-2">
-              <button type="button" onClick={() => router.push("/admin/listarEventos")} className="inline-flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg font-medium hover:scale-[1.02] hover:shadow-lg transition-all duration-150">
+              <button
+                type="button"
+                onClick={() => router.push("/admin/listarEventos")}
+                className="inline-flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg font-medium hover:scale-[1.02] hover:shadow-lg transition-all duration-150"
+              >
                 📋 Listar Eventos
+              </button>
+
+              <button
+                type="button"
+                onClick={handleLogout}
+                className="inline-flex items-center gap-2 bg-red-600 text-white px-4 py-2 rounded-lg font-medium hover:scale-[1.02] hover:shadow-lg transition-all duration-150"
+              >
+                🚪 Sair
               </button>
             </div>
           </div>

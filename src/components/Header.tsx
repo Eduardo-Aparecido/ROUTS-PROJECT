@@ -54,12 +54,6 @@ export default function Header({
               className="pl-9 pr-3 py-2 rounded-lg bg-zinc-900 text-white border border-zinc-700 focus:border-green-500 focus:ring-1 focus:ring-green-500 transition-all outline-none placeholder-zinc-500 w-64"
             />
           </div>
-          <Link
-            href="/admin"
-            className="ml-4 px-4 py-2 rounded-lg font-semibold text-white bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-400 hover:to-emerald-500 shadow-md transition-all"
-          >
-            Criar evento
-          </Link>
         </div>
 
         {/* MOBILE MENU TOGGLE */}
@@ -95,15 +89,6 @@ export default function Header({
                 className="w-full pl-9 pr-3 py-2 rounded-md bg-zinc-900 text-white border border-zinc-700 focus:border-green-500 focus:ring-1 focus:ring-green-500 outline-none placeholder-zinc-500"
               />
             </div>
-
-            {/* Botão criar evento */}
-            <Link
-              href="/formulario"
-              onClick={() => setOpen(false)}
-              className="block text-center w-full px-4 py-2 rounded-lg font-semibold text-white bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-400 hover:to-emerald-500 shadow-md transition-all"
-            >
-              Criar evento
-            </Link>
 
             {/* Sidebar links (modo mobile) */}
             <div className="pt-4 border-t border-white/10 space-y-3">
