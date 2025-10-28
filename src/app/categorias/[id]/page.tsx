@@ -21,22 +21,34 @@ export default function CategoryPage({ params }: { params: Promise<{ id: string 
 
   useEffect(() => {
     async function fetchEvents() {
+    try {
       setLoading(true);
-      const res = await fetch("/api/list-events");
+      const res = await fetch("/api/event/list");
       const data = await res.json();
 
-      const filtered = data.filter(
+      // 👉 Garante que `eventsData` é sempre um array
+      const eventsData = Array.isArray(data)
+        ? data
+        : Array.isArray(data.events)
+        ? data.events
+        : [];
+
+      const filtered = eventsData.filter(
         (ev: any) =>
           ev.category_id === categoryId &&
           ev.title.toLowerCase().includes(search.toLowerCase())
       );
 
       setEvents(filtered);
+    } catch (error) {
+      console.error("Erro ao carregar eventos:", error);
+    } finally {
       setLoading(false);
     }
+  }
 
-    fetchEvents();
-  }, [categoryId, search]);
+  fetchEvents();
+}, [categoryId, search]);
 
   return (
     <>
