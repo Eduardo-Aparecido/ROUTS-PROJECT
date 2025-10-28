@@ -241,7 +241,7 @@ export default function EventDetail({ params }: { params: Promise<{ id: string }
                     href={event.external_link}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center justify-center gap-2 w-full sm:w-1/2 px-4 py-2 border border-green-500 rounded-full text-white hover:bg-cyan-500 hover:text-black transition-all duration-300"
+                    className="flex items-center justify-center gap-2 w-full sm:w-1/2 px-4 py-2 border border-green-500 rounded-full text-white hover:bg-green-600 hover:text-black transition-all duration-300"
                   >
                     <span className="text-lg">🔗</span>
                     <span className="text-sm font-medium">Link do local</span>
@@ -251,7 +251,7 @@ export default function EventDetail({ params }: { params: Promise<{ id: string }
                 {event.phone && (
                   <a
                     href={`tel:${event.phone}`}
-                    className="flex items-center justify-center gap-2 w-full sm:w-1/2 px-4 py-2 border border-green-500 rounded-full text-white hover:bg-cyan-500 hover:text-black transition-all duration-300"
+                    className="flex items-center justify-center gap-2 w-full sm:w-1/2 px-4 py-2 border border-green-500 rounded-full text-white hover:bg-green-600 hover:text-black transition-all duration-300"
                   >
                     <span className="text-lg">📞</span>
                     <span className="text-sm font-medium">{event.phone}</span>

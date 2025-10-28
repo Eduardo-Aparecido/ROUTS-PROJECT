@@ -54,13 +54,24 @@ export default function ListarEventosPage() {
       <Header search="" setSearch={() => {}} />
 
       <section className="w-[90%] md:w-[80%] mx-auto pt-24 pb-16">
-        <div className="text-center mb-10">
-          <h1 className="text-3xl font-bold text-white mb-2">
-            Eventos Cadastrados
-          </h1>
-          <p className="text-white text-base">
-            Clique em um evento para editar ou deletar.
-          </p>
+        {/* Título + botão de criar */}
+        <div className="flex flex-col md:flex-row justify-between items-center mb-10 gap-4 text-center md:text-left">
+          <div>
+            <h1 className="text-3xl font-bold text-white mb-1">
+              Eventos Cadastrados
+            </h1>
+            <p className="text-white text-base">
+              Clique em um evento para editar ou deletar.
+            </p>
+          </div>
+
+          {/* 🔹 Botão para criar novo evento */}
+          <Link
+            href="/admin"
+            className="bg-green-600 hover:bg-green-700 text-white font-semibold px-5 py-2.5 rounded-md shadow transition-all duration-200"
+          >
+            Criar novo evento
+          </Link>
         </div>
 
         {loading ? (
@@ -71,7 +82,7 @@ export default function ListarEventosPage() {
               Nenhum evento cadastrado ainda.
             </p>
             <Link
-              href="/formulario"
+              href="/admin"
               className="inline-block bg-green-600 hover:bg-green-700 text-white font-medium px-5 py-2.5 rounded-md shadow transition-all duration-200"
             >
               Criar novo evento
@@ -91,7 +102,7 @@ export default function ListarEventosPage() {
                     alt={evento.title}
                     className="w-full h-full object-cover"
                     whileHover={{ scale: 1.1 }}
-                    transition={{ duration: 0.4, }}
+                    transition={{ duration: 0.4 }}
                   />
                 </div>
 

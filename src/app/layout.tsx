@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Guia de Eventos",
+  title: "ROUTS - Descubra Experiências Incríveis em Rio Verde",
   description: "Descubra eventos e locais incríveis na sua cidade",
 };
 
