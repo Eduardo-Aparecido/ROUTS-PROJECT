@@ -122,7 +122,7 @@ export default function EventDetail({ params }: { params: Promise<{ id: string }
               </div>
 
               <p className="text-sm text-green-500 mt-1 sm:mt-2">
-                {event.local}
+              📍  {event.local}
                 {formattedDate && ` – ${formattedDate}`}
               </p>
             </div>

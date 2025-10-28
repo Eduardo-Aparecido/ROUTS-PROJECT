@@ -127,7 +127,7 @@ export default function EditarEventoPage() {
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Campos do evento */}
             <div>
-              <label className="block font-medium">Nome do evento</label>
+              <label className="block font-medium">Titulo</label>
               <input
                 value={form.title}
                 onChange={(e) => setForm({ ...form, title: e.target.value })}
