@@ -1,98 +1,74 @@
 // src/app/api/event/create/route.ts
-
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
-import multiparty from "multiparty";
-import fs from "fs/promises";
 import path from "path";
-
-export const config = { api: { bodyParser: false } };
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
 
-// Tipos próprios compatíveis com multiparty
-type FormFields = Record<string, string[]>;
-type FormFile = {
-  fieldName: string;
-  originalFilename?: string;
-  path: string;
-  headers: Record<string, string>;
-  size: number;
-};
-type FormFiles = Record<string, FormFile[]>;
-
-// Função para parsear multiparty com Promise
-function parseForm(req: any): Promise<{ fields: FormFields; files: FormFiles }> {
-  return new Promise((resolve, reject) => {
-    const form = new multiparty.Form();
-    form.parse(req, (err: Error | null, fields: FormFields, files: FormFiles) => {
-      if (err) reject(err);
-      else resolve({ fields, files });
-    });
-  });
-}
-
 export async function POST(req: Request) {
   try {
-    // Como o App Router não usa NextApiRequest, precisamos converter o corpo para stream
-    const buffers: Uint8Array[] = [];
-    const reader = req.body?.getReader();
-    if (reader) {
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        if (value) buffers.push(value);
-      }
-    }
-    const stream = Buffer.concat(buffers);
-    (stream as any).headers = Object.fromEntries(req.headers.entries());
+    const formData = await req.formData();
 
-    const { fields, files } = await parseForm(stream);
+    // 🔹 Campos de texto
+    const title = (formData.get("title") as string) || "";
+    const local = (formData.get("local") as string) || "";
+    const date = (formData.get("date") as string) || null;
+    const categoryId = Number(formData.get("categoryId")) || null;
+    const sectionId = formData.get("sectionId") ? Number(formData.get("sectionId")) : null;
+    const description = (formData.get("description") as string) || "";
+    const address = (formData.get("address") as string) || "";
+    const phone = (formData.get("phone") as string) || "";
+    const map_embed = (formData.get("map_embed") as string) || "";
+    const type = (formData.get("type") as string) || "visit";
+    const external_link = (formData.get("external_link") as string) || "";
 
-    const title = fields.title?.[0] || "";
-    const local = fields.local?.[0] || "";
-    const date = fields.date?.[0] || null;
-    const categoryId = Number(fields.categoryId?.[0]) || null;
-    const sectionId = fields.sectionId?.[0] ? Number(fields.sectionId[0]) : null;
-    const description = fields.description?.[0] || "";
-    const address = fields.address?.[0] || "";
-    const phone = fields.phone?.[0] || "";
-    const map_embed = fields.map_embed?.[0] || "";
-    const type = fields.type?.[0] || "visit";
-    const external_link = fields.external_link?.[0] || "";
-    const openingHours = fields.openingHours ? JSON.parse(fields.openingHours[0]) : [];
+    const openingHoursRaw = formData.get("openingHours");
+    const openingHours = openingHoursRaw
+      ? JSON.parse(openingHoursRaw as string)
+      : [];
 
     // 🔹 Upload da imagem principal
     let imageUrl: string | null = null;
-    const imageFile = files.image?.[0];
-    if (imageFile) {
-      const buffer = await fs.readFile(imageFile.path);
-      const fileName = `main/${Date.now()}-${path.basename(imageFile.originalFilename || "image")}`;
+    const imageFile = formData.get("image") as File | null;
+
+    if (imageFile && imageFile.size > 0) {
+      const arrayBuffer = await imageFile.arrayBuffer();
+      const buffer = Buffer.from(arrayBuffer);
+      const fileName = `main/${Date.now()}-${path.basename(imageFile.name)}`;
+
       const { error } = await supabase.storage
         .from("event-images")
-        .upload(fileName, buffer, { contentType: imageFile.headers["content-type"] });
+        .upload(fileName, buffer, {
+          contentType: imageFile.type,
+        });
       if (error) throw error;
 
-      const { data: publicUrl } = supabase.storage.from("event-images").getPublicUrl(fileName);
-      imageUrl = publicUrl.publicUrl;
+      const { data } = supabase.storage.from("event-images").getPublicUrl(fileName);
+      imageUrl = data.publicUrl;
     }
 
-    // 🔹 Upload da galeria
-    const galleryFiles = files.gallery || [];
+    // 🔹 Upload das imagens da galeria
     const galleryUrls: string[] = [];
+    const galleryFiles = formData.getAll("gallery") as File[];
+
     for (const file of galleryFiles) {
-      const buffer = await fs.readFile(file.path);
-      const fileName = `gallery/${Date.now()}-${path.basename(file.originalFilename || "file")}`;
+      if (file.size === 0) continue;
+      const arrayBuffer = await file.arrayBuffer();
+      const buffer = Buffer.from(arrayBuffer);
+      const fileName = `gallery/${Date.now()}-${path.basename(file.name)}`;
+
       const { error } = await supabase.storage
         .from("events")
-        .upload(fileName, buffer, { contentType: file.headers["content-type"] });
+        .upload(fileName, buffer, {
+          contentType: file.type,
+        });
       if (error) throw error;
 
-      const { data: publicUrl } = supabase.storage.from("events").getPublicUrl(fileName);
-      galleryUrls.push(publicUrl.publicUrl);
+      const { data } = supabase.storage.from("events").getPublicUrl(fileName);
+      galleryUrls.push(data.publicUrl);
     }
 
     // 🔹 Inserir evento no banco
@@ -130,13 +106,18 @@ export async function POST(req: Request) {
         is_closed: !!h.is_closed,
       }));
 
-      const { error: hoursError } = await supabase.from("opening_hours").insert(formattedHours);
+      const { error: hoursError } = await supabase
+        .from("opening_hours")
+        .insert(formattedHours);
       if (hoursError) throw hoursError;
     }
 
     return NextResponse.json({ success: true, event: newEvent }, { status: 200 });
   } catch (error: any) {
     console.error("Erro ao criar evento:", error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json(
+      { success: false, error: error.message },
+      { status: 500 }
+    );
   }
 }
