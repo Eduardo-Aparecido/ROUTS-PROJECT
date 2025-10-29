@@ -1,25 +1,47 @@
 "use client";
 
+import { useRef } from "react";
 import { motion } from "framer-motion";
 import { categories } from "@/data/categories";
 import Link from "next/link";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 export default function CategoryList() {
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  const scroll = (direction: "left" | "right") => {
+    if (scrollRef.current) {
+      const scrollAmount = 250; // distância que rola por clique
+      scrollRef.current.scrollBy({
+        left: direction === "left" ? -scrollAmount : scrollAmount,
+        behavior: "smooth",
+      });
+    }
+  };
+
   return (
-    <section className="mt-14 mb-14 sm:mt-10 md:mt-10">
+    <section className="mt-14 mb-14 sm:mt-10 md:mt-10 relative">
       <h2 className="text-xl text-white font-bold mb-4">
         O que você quer fazer hoje?
       </h2>
 
+      {/* Botão esquerdo */}
+      <button
+        onClick={() => scroll("left")}
+        className="hidden sm:flex absolute left-0 top-1/2 -translate-y-1/2 bg-zinc-900/70 hover:bg-zinc-800 p-2 rounded-full shadow-lg z-10"
+      >
+        <ChevronLeft className="text-white w-5 h-5" />
+      </button>
+
+      {/* Lista de categorias */}
       <motion.div
-        className="flex gap-3 overflow-x-auto no-scrollbar scroll-smooth snap-x snap-mandatory py-2"
+        ref={scrollRef}
+        className="flex gap-3 overflow-x-scroll no-scrollbar scroll-smooth snap-x snap-mandatory py-2 px-1"
         initial="hidden"
         animate="visible"
         variants={{
           hidden: {},
-          visible: {
-            transition: { staggerChildren: 0.08 },
-          },
+          visible: { transition: { staggerChildren: 0.08 } },
         }}
       >
         {categories.map((cat) => (
@@ -55,6 +77,13 @@ export default function CategoryList() {
         ))}
       </motion.div>
 
+      {/* Botão direito */}
+      <button
+        onClick={() => scroll("right")}
+        className="hidden sm:flex absolute right-0 top-1/2 -translate-y-1/2 bg-zinc-900/70 hover:bg-zinc-800 p-2 rounded-full shadow-lg z-10"
+      >
+        <ChevronRight className="text-white w-5 h-5" />
+      </button>
     </section>
   );
 }
