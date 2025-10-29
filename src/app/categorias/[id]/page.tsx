@@ -3,6 +3,7 @@
 import { use, useEffect, useState } from "react";
 import Header from "@/components/Header";
 import { categories } from "@/data/categories";
+import CategoryList from "@/components/CategoryList";
 import LocalVisit from "@/components/LocalVisit";
 import Footer from "@/components/Footer";
 import SidebarMenu from "@/components/SidebarMenu";
@@ -55,8 +56,11 @@ export default function CategoryPage({ params }: { params: Promise<{ id: string 
       {/* Sidebar para desktop */}
       <SidebarMenu />
 
-      <main className="px-6 sm:px-8 md:px-16 lg:px-32 xl:px-60 py-18 text-white bg-zinc-800">
-        {/* Header com busca */}
+      <main className="font-sans bg-zinc-800 text-white min-h-screen pt-15 pb-20">
+        <div className="max-w-[1600px] mx-auto mb-5 px-4 sm:px-8 md:px-16 lg:px-32 xl:px-60 2xl:px-100">
+          <CategoryList />        
+          
+          {/* Header com busca */}
         <Header search={search} setSearch={setSearch} />
 
         <h1 className="text-3xl font-bold mb-6 mt-10">
@@ -72,6 +76,7 @@ export default function CategoryPage({ params }: { params: Promise<{ id: string 
         )}
 
         <div className="border-t border-zinc-800 mb-4" />
+        </div>
       </main>
 
       <Footer />
