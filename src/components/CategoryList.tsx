@@ -12,20 +12,16 @@ export default function CategoryList() {
       </h2>
 
       <motion.div
-        className="flex gap-4 overflow-x-auto scroll-smooth snap-x snap-mandatory scrollbar-hide w-full py-2 justify-center"
+        className="flex gap-4 overflow-x-auto scroll-smooth snap-x snap-mandatory scrollbar-hide w-full py-2 px-4"
         initial="hidden"
         animate="visible"
         variants={{
           hidden: {},
-          visible: {
-            transition: { staggerChildren: 0.08 },
-          },
+          visible: { transition: { staggerChildren: 0.08 } },
         }}
         style={{
-          scrollPaddingLeft: "1rem",
-          scrollPaddingRight: "1rem",
-          scrollbarWidth: "none", // Firefox
-          msOverflowStyle: "none", // IE/Edge
+          scrollbarWidth: "none",
+          msOverflowStyle: "none",
         }}
       >
         {categories.map((cat) => (
