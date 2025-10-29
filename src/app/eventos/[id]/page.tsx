@@ -83,7 +83,7 @@ export default function EventDetail({ params }: { params: Promise<{ id: string }
   return (
     <>
       <SidebarMenu />
-      <main className="min-h-screen text-white pt-20 bg-zinc-800">
+      <main className="min-h-screen text-white pt-20 bg-zinc-900">
         <Header search="" setSearch={() => {}} />
 
         <div className="w-[100%] sm:w-[95%] md:w-[75%] lg:w-[55%] xl:w-[60%] mx-auto bg-black rounded-t-2xl">

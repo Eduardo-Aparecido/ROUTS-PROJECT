@@ -11,9 +11,9 @@ export default function ContatoPage() {
     <SidebarMenu />
     <Header search="" setSearch={() => {}} />
     
-    <main className="bg-black text-white min-h-screen overflow-x-hidden py-10">
+    <main className="bg-zinc-900 text-white min-h-screen overflow-x-hidden py-10">
       {/* HERO */}
-      <section className="relative text-center px-6 py-16 bg-[url('/bg-contato.jpg')] bg-cover bg-center bg-black/60 bg-blend-overlay">
+      <section className="relative text-center px-6 py-16 bg-[url('/bg-contato.jpg')] bg-zinc-900 bg-center bg-black/60 bg-blend-overlay">
         <h1 className="text-3xl sm:text-4xl font-extrabold mb-8">
           ENTRE EM CONTATO COM O <span className="text-green-400">ROUTS</span>
         </h1>

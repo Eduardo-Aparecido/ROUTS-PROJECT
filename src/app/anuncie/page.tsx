@@ -28,7 +28,7 @@ export default function AnunciePage() {
     <SidebarMenu />
     <Header search="" setSearch={() => {}} />
     
-    <main className="bg-black text-white px-4 sm:px-8 md:px-16 lg:px-32 xl:px-60 py-18">
+    <main className="bg-zinc-900 text-white px-4 sm:px-8 md:px-16 lg:px-32 xl:px-60 py-18">
       {/* HERO */}
       <section className="relative text-center px-6 py-16 bg-[url('/bg-anuncie.jpg')] bg-cover bg-center bg-black/60 bg-blend-overlay">
         <h1 className="text-3xl sm:text-4xl font-extrabold mb-4">
