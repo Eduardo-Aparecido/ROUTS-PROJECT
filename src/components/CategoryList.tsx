@@ -7,8 +7,8 @@ import Link from "next/link";
 export default function CategoryList() {
   return (
     <section className="mt-14 mb-14 sm:mt-10 md:mt-10">
-      <h2 className="text-xl text-white font-bold mb-4 text-center">
-        O que você quer fazer hoje?
+      <h2 className="text-xl text-white font-bold mb-4 px-4 sm:px-0">
+        O que você gostaria fazer hoje?
       </h2>
 
       <motion.div

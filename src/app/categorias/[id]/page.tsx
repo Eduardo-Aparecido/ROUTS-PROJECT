@@ -56,7 +56,7 @@ export default function CategoryPage({ params }: { params: Promise<{ id: string 
       {/* Sidebar para desktop */}
       <SidebarMenu />
 
-      <main className="font-sans bg-zinc-800 text-white min-h-screen pt-15 pb-20">
+      <main className="font-sans bg-zinc-800 text-white min-h-screen pt-20 pb-20">
         <div className="max-w-[1600px] mx-auto mb-5 px-4 sm:px-8 md:px-16 lg:px-32 xl:px-60 2xl:px-100">
           <CategoryList />        
           
