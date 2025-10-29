@@ -65,22 +65,24 @@ export default function Home() {
     <>
       <SidebarMenu />
       <Header search={search} setSearch={setSearch} />
-      <main className="font-sans px-4 sm:px-8 md:px-16 lg:px-32 xl:px-60 text-white pt-15 bg-zinc-800 min-h-screen">
-        <CategoryList />
-        {loading ? (
-          <p className="text-center text-gray-500">Carregando eventos...</p>
-        ) : (
-          <>
-            {sections.map((section) => (
-              <LocalVisit
-                key={section.id}
-                title={section.title || section.name}
-                emoji={section.emoji}
-                events={getEventsForSection(section.id)}
-              />
-            ))}
-          </>
-        )}
+      <main className="font-sans bg-zinc-800 text-white min-h-screen pt-15 pb-20">
+        <div className="max-w-[1600px] mx-auto mb-5 px-4 sm:px-8 md:px-16 lg:px-32 xl:px-60 2xl:px-100">
+          <CategoryList />
+          {loading ? (
+            <p className="text-center text-gray-500">Carregando eventos...</p>
+          ) : (
+            <>
+              {sections.map((section) => (
+                <LocalVisit
+                  key={section.id}
+                  title={section.title || section.name}
+                  emoji={section.emoji}
+                  events={getEventsForSection(section.id)}
+                />
+              ))}
+            </>
+          )}
+        </div>
       </main>
       <Footer />
     </>
