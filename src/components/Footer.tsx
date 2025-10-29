@@ -8,7 +8,7 @@ export default function Footer() {
       <div className="max-w-6xl mx-auto px-6 py-10 flex flex-col md:flex-row items-center justify-between text-zinc-400 text-sm space-y-4 md:space-y-0">
         <p className="max-w-3xl leading-relaxed text-center md:text-left">
           O <span className="font-semibold text-white">ROUTS</span> não é responsável pelos eventos, 
-          estabelecimentos e cinemas divulgados. horários, preços e atrações podem ser alterados 
+          estabelecimentos e cinemas divulgados. Horários, preços e atrações podem ser alterados 
           pelos responsáveis sem aviso prévio.
         </p>
 
