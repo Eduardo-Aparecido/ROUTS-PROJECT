@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import { categories } from "@/data/categories";
 import Link from "next/link";
 import { useRef } from "react";
-import { ChevronLeft, ChevronRight } from "lucide-react"; // Ícones mais elegantes
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 export default function CategoryList() {
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -25,23 +25,32 @@ export default function CategoryList() {
         O que você quer fazer hoje?
       </h2>
 
-      {/* Contêiner do carrossel */}
       <div className="relative">
-        {/* Botão esquerdo */}
-        <button
-          onClick={() => scroll("left")}
-          className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-black/60 hover:bg-black/80 text-white p-2 rounded-full shadow-lg backdrop-blur-sm"
-        >
-          <ChevronLeft size={22} />
-        </button>
+        {/* Botões sobrepostos */}
+        <div className="pointer-events-none absolute inset-0 flex justify-between items-center px-2 z-10">
+          <button
+            onClick={() => scroll("left")}
+            className="pointer-events-auto bg-black/60 hover:bg-black/80 text-white p-2 rounded-full shadow-lg backdrop-blur-sm"
+          >
+            <ChevronLeft size={22} />
+          </button>
+          <button
+            onClick={() => scroll("right")}
+            className="pointer-events-auto bg-black/60 hover:bg-black/80 text-white p-2 rounded-full shadow-lg backdrop-blur-sm"
+          >
+            <ChevronRight size={22} />
+          </button>
+        </div>
 
         {/* Lista de categorias */}
         <motion.div
           ref={scrollRef}
-          className="flex gap-4 overflow-x-scroll scroll-smooth snap-x snap-mandatory w-full px-8 py-2 justify-center"
+          className="flex gap-4 overflow-x-scroll scroll-smooth snap-x snap-mandatory w-full py-2 justify-center"
           style={{
             scrollbarWidth: "none",
             msOverflowStyle: "none",
+            scrollPaddingLeft: "1rem", // espaço invisível à esquerda
+            scrollPaddingRight: "1rem", // espaço invisível à direita
             overflowY: "hidden",
           }}
         >
@@ -78,15 +87,6 @@ export default function CategoryList() {
           ))}
         </motion.div>
 
-        {/* Botão direito */}
-        <button
-          onClick={() => scroll("right")}
-          className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-black/60 hover:bg-black/80 text-white p-2 rounded-full shadow-lg backdrop-blur-sm"
-        >
-          <ChevronRight size={22} />
-        </button>
-
-        {/* Remove scrollbar WebKit */}
         <style jsx>{`
           div::-webkit-scrollbar {
             display: none;
